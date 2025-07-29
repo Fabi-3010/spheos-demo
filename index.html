@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spheos KI-Vertriebsassistent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .chat-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .header {
+            background: #c2185b;
+            background: linear-gradient(135deg, #c2185b 0%, #e91e63 100%);
+            color: white;
+            padding: 30px 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 300;
+            letter-spacing: -2px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            opacity: 0.9;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-body {
+            padding: 40px 25px;
+            background: #fafafa;
+        }
+
+        .chat-messages {
+            min-height: 200px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            background: white;
+            padding: 18px 20px;
+            border-radius: 18px;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+            max-width: 85%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .bot-message::before {
+            content: '🤖';
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: white;
+            padding: 0 5px;
+            font-size: 16px;
+        }
+
+        .user-message {
+            background: #e91e63;
+            color: white;
+            padding: 18px 20px;
+            border-radius: 18px;
+            align-self: flex-end;
+            max-width: 85%;
+            box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
+        }
+
+        .input-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #e91e63;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.1);
+        }
+
+        .chat-input::placeholder {
+            color: #999;
+        }
+
+        .send-button {
+            width: 100%;
+            padding: 18px;
+            background: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .send-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .send-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .send-button:hover {
+            background: #c2185b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(233, 30, 99, 0.4);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .typing-indicator.show {
+            display: flex;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #e91e63;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action {
+            padding: 10px 18px;
+            background: white;
+            border: 2px solid #e91e63;
+            color: #e91e63;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .quick-action:hover {
+            background: #e91e63;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3);
+        }
+
+        @media (max-width: 500px) {
+            .chat-container {
+                border-radius: 0;
+                height: 100vh;
+                max-width: 100%;
+            }
+            
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <div class="logo">spheos</div>
+            <h1 class="welcome-text">Willkommen beim KI-Vertriebsassistenten</h1>
+            <p class="subtitle">Stellen Sie hier Ihre Fragen rund um unser Angebot. Unser intelligenter Assistent antwortet auf Basis unserer offiziellen Inhalte – schnell, klar und zuverlässig.</p>
+        </div>
+        
+        <div class="chat-body">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    Hallo! Ich bin Ihr persönlicher Spheos-Assistent. Wie kann ich Ihnen heute helfen? Fragen Sie mich gerne zu unseren Produkten, Services oder Lösungen.
+                </div>
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+            
+            <div class="input-section">
+                <label class="input-label" for="userInput">Ihre Frage:</label>
+                <div class="input-wrapper">
+                    <textarea 
+                        id="userInput" 
+                        class="chat-input" 
+                        placeholder="Was kostet euer Service? Wie läuft die Zusammenarbeit?"
+                        rows="3"
+                    ></textarea>
+                </div>
+                <button class="send-button" onclick="sendMessage()">Absenden</button>
+                
+                <div class="quick-actions">
+                    <button class="quick-action" onclick="quickQuestion('Preise')">💰 Preise</button>
+                    <button class="quick-action" onclick="quickQuestion('Services')">🚀 Services</button>
+                    <button class="quick-action" onclick="quickQuestion('Kontakt')">📞 Kontakt</button>
+                    <button class="quick-action" onclick="quickQuestion('Über uns')">ℹ️ Über uns</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                input.value = '';
+                showTypingIndicator();
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const responses = [
+                        "Vielen Dank für Ihre Anfrage! Unsere Services sind individuell auf Ihre Bedürfnisse zugeschnitten. Gerne erstellen wir Ihnen ein persönliches Angebot.",
+                        "Bei Spheos bieten wir maßgeschneiderte Lösungen. Lassen Sie uns in einem persönlichen Gespräch Ihre Anforderungen besprechen.",
+                        "Ich leite Ihre Anfrage gerne an unser Vertriebsteam weiter. Sie erhalten in Kürze eine detaillierte Antwort.",
+                        "Unsere Experten beraten Sie gerne zu dieser Thematik. Möchten Sie einen Termin für ein unverbindliches Beratungsgespräch vereinbaren?"
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, 'bot');
+                }, 1500);
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingIndicator = document.getElementById('typingIndicator');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            messagesDiv.insertBefore(messageDiv, typingIndicator);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('show');
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('show');
+        }
+
+        function quickQuestion(topic) {
+            const questions = {
+                'Preise': 'Was kosten eure Services?',
+                'Services': 'Welche Dienstleistungen bietet ihr an?',
+                'Kontakt': 'Wie kann ich euch kontaktieren?',
+                'Über uns': 'Erzählt mir mehr über Spheos.'
+            };
+            
+            document.getElementById('userInput').value = questions[topic];
+            sendMessage();
+        }
+
+        // Allow Enter key to send message (Shift+Enter for new line)
+        document.getElementById('userInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
